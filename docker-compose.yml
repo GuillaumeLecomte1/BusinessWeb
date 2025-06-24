@@ -3,7 +3,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: businessweb-site
     restart: unless-stopped
     environment:
       - NGINX_HOST=businessweb.guillaume-lcte.fr
@@ -21,8 +20,8 @@ services:
       - "traefik.http.routers.businessweb.tls=true"
       - "traefik.http.routers.businessweb.tls.certresolver=letsencrypt"
     networks:
-      - businessweb-network
+      - dokploy-network
 
 networks:
-  businessweb-network:
-    driver: bridge 
+  dokploy-network:
+    external: true 
