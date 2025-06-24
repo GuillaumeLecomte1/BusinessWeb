@@ -3,4 +3,19 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    restart: unless-stopped 
+    restart: unless-stopped
+    networks:
+      - dokploy-network
+      - client-mailpit-qf3zat
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.businessweb.rule=Host(`businessweb.guillaume-lcte.fr`)"
+      - "traefik.http.routers.businessweb.entrypoints=websecure"
+      - "traefik.http.routers.businessweb.tls.certresolver=lets-encrypt"
+      - "traefik.http.services.businessweb.loadbalancer.server.port=3000"
+
+networks:
+  dokploy-network:
+    external: true
+  client-mailpit-qf3zat:
+    external: true

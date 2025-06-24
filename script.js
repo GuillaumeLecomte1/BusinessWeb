@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Gestion du formulaire de contact
 const contactForm = document.getElementById('contactForm');
 
-contactForm.addEventListener('submit', function(e) {
+contactForm.addEventListener('submit', async function(e) {
     e.preventDefault();
     
     // Récupération des données du formulaire
@@ -92,19 +92,46 @@ contactForm.addEventListener('submit', function(e) {
         return;
     }
     
-    // Simulation d'envoi (remplacer par votre logique d'envoi)
+    // Préparation de l'envoi
     const submitBtn = this.querySelector('.submit-btn');
     const originalText = submitBtn.innerHTML;
     
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi en cours...';
     submitBtn.disabled = true;
     
-    setTimeout(() => {
-        showNotification('Message envoyé avec succès ! Nous vous recontacterons bientôt.', 'success');
-        this.reset();
+    try {
+        // Envoi des données au serveur
+        const response = await fetch('/api/contact', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ nom, email, message })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification(result.message, 'success');
+            this.reset();
+            
+            // Animation de succès sur le formulaire
+            this.style.transform = 'scale(0.98)';
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+            }, 200);
+            
+        } else {
+            showNotification(result.message, 'error');
+        }
+        
+    } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('Erreur de connexion. Veuillez réessayer plus tard.', 'error');
+    } finally {
         submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;
-    }, 2000);
+    }
 });
 
 // Fonction de validation email
@@ -124,8 +151,16 @@ function showNotification(message, type) {
     notification.className = `notification ${type}`;
     notification.innerHTML = `
         <div class="notification-content">
-            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
-            <span>${message}</span>
+            <div class="notification-icon">
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+            </div>
+            <div class="notification-text">
+                <div class="notification-title">${type === 'success' ? 'Succès' : 'Erreur'}</div>
+                <div class="notification-message">${message}</div>
+            </div>
+            <button class="notification-close" onclick="this.parentElement.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
     `;
     
@@ -134,22 +169,86 @@ function showNotification(message, type) {
         position: fixed;
         top: 100px;
         right: 20px;
-        background: ${type === 'success' ? '#4CAF50' : '#f44336'};
+        background: ${type === 'success' ? 'linear-gradient(135deg, #4CAF50, #45a049)' : 'linear-gradient(135deg, #f44336, #d32f2f)'};
         color: white;
-        padding: 15px 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        padding: 0;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         z-index: 10000;
         transform: translateX(400px);
-        transition: transform 0.3s ease;
-        max-width: 350px;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        max-width: 380px;
+        min-width: 320px;
+        border: 1px solid ${type === 'success' ? 'rgba(76, 175, 80, 0.3)' : 'rgba(244, 67, 54, 0.3)'};
+        backdrop-filter: blur(10px);
     `;
     
-    notification.querySelector('.notification-content').style.cssText = `
+    const content = notification.querySelector('.notification-content');
+    content.style.cssText = `
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 20px;
+        position: relative;
+    `;
+    
+    const icon = notification.querySelector('.notification-icon');
+    icon.style.cssText = `
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
         display: flex;
         align-items: center;
-        gap: 10px;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 18px;
     `;
+    
+    const textDiv = notification.querySelector('.notification-text');
+    textDiv.style.cssText = `
+        flex: 1;
+        min-width: 0;
+    `;
+    
+    const title = notification.querySelector('.notification-title');
+    title.style.cssText = `
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 4px;
+        opacity: 0.9;
+    `;
+    
+    const messageDiv = notification.querySelector('.notification-message');
+    messageDiv.style.cssText = `
+        font-size: 13px;
+        line-height: 1.4;
+        opacity: 0.8;
+    `;
+    
+    const closeBtn = notification.querySelector('.notification-close');
+    closeBtn.style.cssText = `
+        background: none;
+        border: none;
+        color: white;
+        cursor: pointer;
+        opacity: 0.7;
+        transition: opacity 0.2s ease;
+        padding: 4px;
+        border-radius: 4px;
+        font-size: 12px;
+        flex-shrink: 0;
+    `;
+    
+    closeBtn.addEventListener('mouseenter', () => {
+        closeBtn.style.opacity = '1';
+        closeBtn.style.background = 'rgba(255, 255, 255, 0.1)';
+    });
+    
+    closeBtn.addEventListener('mouseleave', () => {
+        closeBtn.style.opacity = '0.7';
+        closeBtn.style.background = 'none';
+    });
     
     document.body.appendChild(notification);
     
@@ -158,14 +257,45 @@ function showNotification(message, type) {
         notification.style.transform = 'translateX(0)';
     }, 100);
     
+    // Barre de progression
+    const progressBar = document.createElement('div');
+    progressBar.style.cssText = `
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 0 0 12px 12px;
+        width: 100%;
+        transform-origin: left;
+        animation: notificationProgress 5s linear forwards;
+    `;
+    
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes notificationProgress {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    content.appendChild(progressBar);
+    
     // Suppression automatique après 5 secondes
     setTimeout(() => {
-        notification.style.transform = 'translateX(400px)';
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-            }
-        }, 300);
+        if (notification.parentNode) {
+            notification.style.transform = 'translateX(400px)';
+            notification.style.opacity = '0';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+                if (style.parentNode) {
+                    style.parentNode.removeChild(style);
+                }
+            }, 400);
+        }
     }, 5000);
 }
 
