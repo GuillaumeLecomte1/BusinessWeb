@@ -7,6 +7,8 @@ services:
     networks:
       - dokploy-network
       - client-mailpit-qf3zat
+    labels:
+      - "traefik.http.services.businessweb.loadbalancer.server.port=4000"
 
 networks:
   dokploy-network:
