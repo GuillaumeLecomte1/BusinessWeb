@@ -117,7 +117,7 @@ contactForm.addEventListener('submit', async function(e) {
             
             // Animation de succès sur le formulaire
             this.style.transform = 'scale(0.98)';
-            setTimeout(() => {
+    setTimeout(() => {
                 this.style.transform = 'scale(1)';
             }, 200);
             
@@ -152,7 +152,7 @@ function showNotification(message, type) {
     notification.innerHTML = `
         <div class="notification-content">
             <div class="notification-icon">
-                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
             </div>
             <div class="notification-text">
                 <div class="notification-title">${type === 'success' ? 'Succès' : 'Erreur'}</div>
@@ -285,12 +285,12 @@ function showNotification(message, type) {
     // Suppression automatique après 5 secondes
     setTimeout(() => {
         if (notification.parentNode) {
-            notification.style.transform = 'translateX(400px)';
+        notification.style.transform = 'translateX(400px)';
             notification.style.opacity = '0';
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.parentNode.removeChild(notification);
-                }
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
                 if (style.parentNode) {
                     style.parentNode.removeChild(style);
                 }
