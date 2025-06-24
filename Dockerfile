@@ -14,19 +14,20 @@ COPY Logo.png /usr/share/nginx/html/
 # Copie la configuration Nginx personnalisée
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Crée un utilisateur non-root pour la sécurité
-RUN addgroup -g 1001 -S nginx && \
-    adduser -S -D -H -u 1001 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx
-
-# Change les permissions des fichiers
+# Change les permissions des fichiers pour l'utilisateur nginx existant
 RUN chown -R nginx:nginx /usr/share/nginx/html && \
+    chmod -R 755 /usr/share/nginx/html
+
+# Créer les répertoires nécessaires avec les bonnes permissions
+RUN mkdir -p /var/cache/nginx/client_temp && \
+    mkdir -p /var/cache/nginx/proxy_temp && \
+    mkdir -p /var/cache/nginx/fastcgi_temp && \
+    mkdir -p /var/cache/nginx/uwsgi_temp && \
+    mkdir -p /var/cache/nginx/scgi_temp && \
     chown -R nginx:nginx /var/cache/nginx && \
     chown -R nginx:nginx /var/log/nginx && \
-    chown -R nginx:nginx /etc/nginx/conf.d
-
-# Change les permissions des répertoires temporaires
-RUN touch /var/run/nginx.pid && \
-    chown -R nginx:nginx /var/run/nginx.pid
+    touch /var/run/nginx.pid && \
+    chown nginx:nginx /var/run/nginx.pid
 
 # Expose le port 8080 (non-privilégié)
 EXPOSE 8080
