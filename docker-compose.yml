@@ -12,7 +12,7 @@ services:
       - "traefik.http.routers.businessweb.rule=Host(`businessweb.guillaume-lcte.fr`)"
       - "traefik.http.routers.businessweb.entrypoints=websecure"
       - "traefik.http.routers.businessweb.tls.certresolver=lets-encrypt"
-      - "traefik.http.services.businessweb.loadbalancer.server.port=3000"
+      - "traefik.http.services.businessweb.loadbalancer.server.port=4000"
 
 networks:
   dokploy-network:

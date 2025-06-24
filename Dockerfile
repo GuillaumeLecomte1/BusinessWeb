@@ -13,6 +13,6 @@ COPY . .
 ENV NODE_ENV=production
 ENV DOCKER_ENV=true
 
-EXPOSE 3000
+EXPOSE 4000
 
 CMD ["node", "server.js"] 
