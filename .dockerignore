@@ -1,0 +1,33 @@
+# Fichiers de versioning
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+*.md
+
+# Fichiers de développement
+.vscode
+.idea
+*.log
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.yml
+.dockerignore
+
+# Fichiers temporaires
+*.tmp
+*.swp
+*.swo
+*~
+
+# Node modules (si présents)
+node_modules
+npm-debug.log*
+
+# Fichiers de cache
+.cache
+.parcel-cache 
